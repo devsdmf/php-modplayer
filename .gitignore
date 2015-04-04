@@ -1,5 +1,6 @@
 *.sw*
 .deps
+autom4te.cache/*
 Makefile
 Makefile.fragments
 Makefile.global
