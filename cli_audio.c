@@ -14,7 +14,7 @@ static zend_function_entry cli_audio_functions[] = {
 	{NULL, NULL, NULL}
 };
 
-zend_module_entry cli_audio_module_entry {
+zend_module_entry cli_audio_module_entry = {
 	#if ZEND_MODULE_API_NO >= 20010901
 	STANDARD_MODULE_HEADER,
 	#endif
@@ -33,7 +33,7 @@ zend_module_entry cli_audio_module_entry {
 
 #ifdef COMPILE_DL_CLI_AUDIO
 ZEND_GET_MODULE(cli_audio)
-#endif;
+#endif
 
 PHP_INI_BEGIN()
 PHP_INI_ENTRY("cli_audio.maxchan","64",PHP_INI_ALL,NULL)
@@ -43,8 +43,6 @@ PHP_INI_END()
 static void php_cli_audio_init_globals(zend_cli_audio_globals *cli_audio_globals)
 {
 	cli_audio_globals->pid     = 0;
-	cli_audio_globals->maxchan = 64;
-	cli_audio_globals->curious = 0;
 }
 
 PHP_MINIT_FUNCTION(cli_audio)
@@ -57,7 +55,7 @@ PHP_MINIT_FUNCTION(cli_audio)
 PHP_MSHUTDOWN_FUNCTION(cli_audio)
 {
 	if (CLI_AUDIO_G(pid) > 0) {
-		 kill(pid, SIGKILL);
+		 finish_stream(CLI_AUDIO_G(pid));
 	}
 	
 	UNREGISTER_INI_ENTRIES();
@@ -67,25 +65,23 @@ PHP_MSHUTDOWN_FUNCTION(cli_audio)
 
 PHP_FUNCTION(cli_audio_stream)
 {
-	zval *filename;
+	char *filename;
+	int filename_length;
 	FILE *fptr;
 	signed int pid;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &filename) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) == FAILURE) {
         RETURN_NULL();
     }
 
-    convert_to_string(filename);
-
 	fptr = fopen(filename, "rb");
 	if (fptr == NULL) {
-        perror("fopen");
         MikMod_Exit();
         zend_error(E_ERROR, "An error occurred at try to open the audio file specified");
         RETURN_NULL();
     }
 
-    pid = stream_audio(fptr, INI_LONG("cli_audio.maxchan"), INI_LONG("cli_audio.curious"));
+    pid = stream_audio(fptr, INI_INT("cli_audio.maxchan"), INI_INT("cli_audio.curious"));
     if (pid > 0) {
     	CLI_AUDIO_G(pid) = pid;
     }
