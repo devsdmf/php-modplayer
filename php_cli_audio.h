@@ -22,7 +22,9 @@ PHP_MINIT_FUNCTION(cli_audio);
 PHP_MSHUTDOWN_FUNCTION(cli_audio);
 // PHP_RINIT_FUNCTION(cli_audio);
 
+PHP_FUNCTION(cli_audio_stream);
+
 extern zend_module_entry cli_audio_module_entry;
 #define phpext_cli_audio_ptr &cli_audio_module_entry;
 
-#endif;
+#endif
