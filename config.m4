@@ -1,3 +1,5 @@
+LDFLAGS=`libmikmod-config --libs`
+
 PHP_ARG_WITH(cli_audio, for cli audio stream support,
 [  --with-cli-audio[=DIR]       include cli audio support])
 
