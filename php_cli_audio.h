@@ -1,3 +1,12 @@
+/**
+ * PHP CLI AUDIO STREAMMER
+ *
+ * This is a extension to provide a stream of module audio files under
+ * the CLI SAPI. This library is licensed under the MIT license.
+ * 
+ * Developed by: devSDMF <devsdmf@gmail.com>
+ *
+ */
 #ifndef PHP_CLI_AUDIO_H
 #define PHP_CLI_AUDIO_H 1
 
