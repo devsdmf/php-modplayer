@@ -23,6 +23,9 @@ PHP_MSHUTDOWN_FUNCTION(cli_audio);
 
 PHP_FUNCTION(cli_audio_stream);
 PHP_FUNCTION(cli_audio_getpid);
+PHP_FUNCTION(cli_audio_stop);
+
+int stream_audio(FILE *fptr, int maxchan, int curious);
 
 extern zend_module_entry cli_audio_module_entry;
 #define phpext_cli_audio_ptr &cli_audio_module_entry;
