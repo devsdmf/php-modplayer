@@ -1,6 +1,6 @@
-# CLI Audio Stream for PHP
+# PHP Module Player
 
-A PHP extension to stream audio through CLI applications.
+A PHP extension to play module audio files in CLI environment.
 
 # Installation
 
@@ -15,11 +15,11 @@ sudo make install
 Now, you must compile and install the extension:
 
 ```
-git clone git@github.com:devsdmf/php-cli-audio.git
-cd php-cli-audio
+git clone git@github.com:devsdmf/php-mod-player.git
+cd php-mod-player
 
 phpize
-./configure --with-cli-audio
+./configure --with-mod-player
 make
 sudo make install
 ```
@@ -28,18 +28,18 @@ sudo make install
 
 ```php
 // Start the audio stream
-cli_audio_stream("audio.xm");
+play_module_file("audio.xm");
 
 // Get the PID of the streammer process
-cli_audio_getpid();
+mod_player_getpid();
 
 // Stop the stream
-cli_audio_stop();
+stop_module_file();
 ```
 
 # Supported Formats
 
-For now the CLI stream was build to support .xm, .mod and .it files (module audio files).
+For now this extension supports .xm, .mod and .it files (module audio files).
 
 # License
 
