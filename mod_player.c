@@ -19,67 +19,67 @@
 
 #include "php.h"
 #include "php_ini.h"
-#include "php_cli_audio.h"
+#include "php_mod_player.h"
 #include "mikmod.h"
 
-ZEND_DECLARE_MODULE_GLOBALS(cli_audio)
+ZEND_DECLARE_MODULE_GLOBALS(mod_player)
 
-static zend_function_entry cli_audio_functions[] = {
-    PHP_FE(cli_audio_stream, NULL)
-    PHP_FE(cli_audio_getpid, NULL)
-    PHP_FE(cli_audio_stop, NULL)
+static zend_function_entry mod_player_functions[] = {
+    PHP_FE(play_module_file, NULL)
+    PHP_FE(mod_player_getpid, NULL)
+    PHP_FE(stop_module_file, NULL)
     {NULL, NULL, NULL}
 };
 
-zend_module_entry cli_audio_module_entry = {
+zend_module_entry mod_player_module_entry = {
     #if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
     #endif
-    PHP_CLI_AUDIO_EXTNAME,
-    cli_audio_functions,
-    PHP_MINIT(cli_audio),
-    PHP_MSHUTDOWN(cli_audio),
+    PHP_MOD_PLAYER_EXTNAME,
+    mod_player_functions,
+    PHP_MINIT(mod_player),
+    PHP_MSHUTDOWN(mod_player),
     NULL,
     NULL,
     NULL,
     #if ZEND_MODULE_API_NO >= 20010901
-    PHP_CLI_AUDIO_VERSION,
+    PHP_MOD_PLAYER_VERSION,
     #endif
     STANDARD_MODULE_PROPERTIES
 };
 
-#ifdef COMPILE_DL_CLI_AUDIO
-ZEND_GET_MODULE(cli_audio)
+#ifdef COMPILE_DL_MOD_PLAYER
+ZEND_GET_MODULE(mod_player)
 #endif
 
 PHP_INI_BEGIN()
-PHP_INI_ENTRY("cli_audio.maxchan","64",PHP_INI_ALL,NULL)
-PHP_INI_ENTRY("cli_audio.curious","0",PHP_INI_ALL,NULL)
+PHP_INI_ENTRY("mod_player.maxchan","64",PHP_INI_ALL,NULL)
+PHP_INI_ENTRY("mod_player.curious","0",PHP_INI_ALL,NULL)
 PHP_INI_END()
 
-static void php_cli_audio_init_globals(zend_cli_audio_globals *cli_audio_globals)
+static void php_mod_player_init_globals(zend_mod_player_globals *mod_player_globals)
 {
-    cli_audio_globals->pid = 0;
+    mod_player_globals->pid = 0;
 }
 
-PHP_MINIT_FUNCTION(cli_audio)
+PHP_MINIT_FUNCTION(mod_player)
 {
-    ZEND_INIT_MODULE_GLOBALS(cli_audio, php_cli_audio_init_globals, NULL);
+    ZEND_INIT_MODULE_GLOBALS(mod_player, php_mod_player_init_globals, NULL);
     REGISTER_INI_ENTRIES();
     return SUCCESS;
 }
 
-PHP_MSHUTDOWN_FUNCTION(cli_audio)
+PHP_MSHUTDOWN_FUNCTION(mod_player)
 {
-    if (CLI_AUDIO_G(pid) > 0) {
-        kill(CLI_AUDIO_G(pid), SIGKILL);
+    if (MOD_PLAYER_G(pid) > 0) {
+        kill(MOD_PLAYER_G(pid), SIGKILL);
     }
     
     UNREGISTER_INI_ENTRIES();
     return SUCCESS;
 }
 
-PHP_FUNCTION(cli_audio_stream)
+PHP_FUNCTION(play_module_file)
 {
     FILE *fptr;
     char *filename;
@@ -89,37 +89,37 @@ PHP_FUNCTION(cli_audio_stream)
         RETURN_NULL();
     }
 
-    if (CLI_AUDIO_G(pid) > 0) {
-        zend_error(E_ERROR, "You've already started the CLI audio stream");
+    if (MOD_PLAYER_G(pid) > 0) {
+        zend_error(E_ERROR, "You've already started the module player");
         RETURN_NULL();
     }
 
     fptr = fopen(filename, "rb");
     if (fptr == NULL) {
         perror("Error");
-        zend_error(E_ERROR, "An error occurred at try to open the audio file specified");
+        zend_error(E_ERROR, "An error occurred at try to open the module audio file specified");
         RETURN_NULL();
     }
 
-    s_pid = stream_audio(fptr, INI_INT("cli_audio.maxchan"), INI_INT("cli_audio.curious"));
+    s_pid = stream_audio(fptr, INI_INT("mod_player.maxchan"), INI_INT("mod_player.curious"));
 
     if (s_pid > 0) {
-        CLI_AUDIO_G(pid) = s_pid;
+        MOD_PLAYER_G(pid) = s_pid;
     }
 
     RETURN_LONG(s_pid);
 }
 
-PHP_FUNCTION(cli_audio_getpid)
+PHP_FUNCTION(mod_player_getpid)
 {
-    RETURN_LONG(CLI_AUDIO_G(pid));
+    RETURN_LONG(MOD_PLAYER_G(pid));
 }
 
-PHP_FUNCTION(cli_audio_stop)
+PHP_FUNCTION(stop_module_file)
 {
-    if (CLI_AUDIO_G(pid) > 0) {
-        kill(CLI_AUDIO_G(pid), SIGKILL);
-        CLI_AUDIO_G(pid) = 0;
+    if (MOD_PLAYER_G(pid) > 0) {
+        kill(MOD_PLAYER_G(pid), SIGKILL);
+        MOD_PLAYER_G(pid) = 0;
     }
 
     RETURN_NULL();
@@ -152,7 +152,7 @@ int stream_audio(FILE *fptr, int maxchan, int curious)
             Player_Start(module);
 
             s_pid = getpid();
-            CLI_AUDIO_G(pid) = s_pid;
+            MOD_PLAYER_G(pid) = s_pid;
 
             while (Player_Active()) {
                 usleep(10000);
