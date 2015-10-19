@@ -4,10 +4,12 @@ A PHP extension to play module audio files in CLI environment.
 
 # Installation
 
-Compile and install the libmikmod ([download here](http://mikmod.sourceforge.net/)):
+Compiling the libmikmod:
 
 ```
-./configure
+cd lib/libmikmod-3.3.7/
+mkdir build && cd !$
+../configure
 make
 sudo make install
 ```
@@ -15,11 +17,8 @@ sudo make install
 Now, you must compile and install the extension:
 
 ```
-git clone git@github.com:devsdmf/php-mod-player.git
-cd php-mod-player
-
 phpize
-./configure --with-mod-player
+./configure
 make
 sudo make install
 ```
