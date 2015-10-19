@@ -42,6 +42,7 @@ mkinstalldirs
 run-tests.php
 stamp-h1
 modules/*
+lib/libmikmod-3.3.7/build/*
 !lib/libmikmod-3.3.7/aclocal.m4
 !lib/libmikmod-3.3.7/config.h.in
 !lib/libmikmod-3.3.7/configure
