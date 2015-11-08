@@ -19,60 +19,60 @@
 
 #include "php.h"
 #include "php_ini.h"
-#include "php_mod_player.h"
+#include "php_modplayer.h"
 #include "mikmod.h"
 
-ZEND_DECLARE_MODULE_GLOBALS(mod_player)
+ZEND_DECLARE_MODULE_GLOBALS(modplayer)
 
-static zend_function_entry mod_player_functions[] = {
+static zend_function_entry modplayer_functions[] = {
     PHP_FE(play_module_file, NULL)
     PHP_FE(mod_player_getpid, NULL)
     PHP_FE(stop_module_file, NULL)
     {NULL, NULL, NULL}
 };
 
-zend_module_entry mod_player_module_entry = {
+zend_module_entry modplayer_module_entry = {
     #if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
     #endif
-    PHP_MOD_PLAYER_EXTNAME,
-    mod_player_functions,
-    PHP_MINIT(mod_player),
-    PHP_MSHUTDOWN(mod_player),
+    PHP_MODPLAYER_EXTNAME,
+    modplayer_functions,
+    PHP_MINIT(modplayer),
+    PHP_MSHUTDOWN(modplayer),
     NULL,
     NULL,
     NULL,
     #if ZEND_MODULE_API_NO >= 20010901
-    PHP_MOD_PLAYER_VERSION,
+    PHP_MODPLAYER_VERSION,
     #endif
     STANDARD_MODULE_PROPERTIES
 };
 
-#ifdef COMPILE_DL_MOD_PLAYER
-ZEND_GET_MODULE(mod_player)
+#ifdef COMPILE_DL_MODPLAYER
+ZEND_GET_MODULE(modplayer)
 #endif
 
 PHP_INI_BEGIN()
-PHP_INI_ENTRY("mod_player.maxchan","64",PHP_INI_ALL,NULL)
-PHP_INI_ENTRY("mod_player.curious","0",PHP_INI_ALL,NULL)
+PHP_INI_ENTRY("modplayer.maxchan","64",PHP_INI_ALL,NULL)
+PHP_INI_ENTRY("modplayer.curious","0",PHP_INI_ALL,NULL)
 PHP_INI_END()
 
-static void php_mod_player_init_globals(zend_mod_player_globals *mod_player_globals)
+static void php_modplayer_init_globals(zend_modplayer_globals *modplayer_globals)
 {
-    mod_player_globals->pid = 0;
+    modplayer_globals->pid = 0;
 }
 
-PHP_MINIT_FUNCTION(mod_player)
+PHP_MINIT_FUNCTION(modplayer)
 {
-    ZEND_INIT_MODULE_GLOBALS(mod_player, php_mod_player_init_globals, NULL);
+    ZEND_INIT_MODULE_GLOBALS(modplayer, php_modplayer_init_globals, NULL);
     REGISTER_INI_ENTRIES();
     return SUCCESS;
 }
 
-PHP_MSHUTDOWN_FUNCTION(mod_player)
+PHP_MSHUTDOWN_FUNCTION(modplayer)
 {
-    if (MOD_PLAYER_G(pid) > 0) {
-        kill(MOD_PLAYER_G(pid), SIGKILL);
+    if (MODPLAYER_G(pid) > 0) {
+        kill(MODPLAYER_G(pid), SIGKILL);
     }
     
     UNREGISTER_INI_ENTRIES();
@@ -89,7 +89,7 @@ PHP_FUNCTION(play_module_file)
         RETURN_NULL();
     }
 
-    if (MOD_PLAYER_G(pid) > 0) {
+    if (MODPLAYER_G(pid) > 0) {
         zend_error(E_ERROR, "You've already started the module player");
         RETURN_NULL();
     }
@@ -101,10 +101,10 @@ PHP_FUNCTION(play_module_file)
         RETURN_NULL();
     }
 
-    s_pid = stream_audio(fptr, INI_INT("mod_player.maxchan"), INI_INT("mod_player.curious"));
+    s_pid = stream_audio(fptr, INI_INT("modplayer.maxchan"), INI_INT("modplayer.curious"));
 
     if (s_pid > 0) {
-        MOD_PLAYER_G(pid) = s_pid;
+        MODPLAYER_G(pid) = s_pid;
     }
 
     RETURN_LONG(s_pid);
@@ -112,14 +112,14 @@ PHP_FUNCTION(play_module_file)
 
 PHP_FUNCTION(mod_player_getpid)
 {
-    RETURN_LONG(MOD_PLAYER_G(pid));
+    RETURN_LONG(MODPLAYER_G(pid));
 }
 
 PHP_FUNCTION(stop_module_file)
 {
-    if (MOD_PLAYER_G(pid) > 0) {
-        kill(MOD_PLAYER_G(pid), SIGKILL);
-        MOD_PLAYER_G(pid) = 0;
+    if (MODPLAYER_G(pid) > 0) {
+        kill(MODPLAYER_G(pid), SIGKILL);
+        MODPLAYER_G(pid) = 0;
     }
 
     RETURN_NULL();
@@ -152,7 +152,7 @@ int stream_audio(FILE *fptr, int maxchan, int curious)
             Player_Start(module);
 
             s_pid = getpid();
-            MOD_PLAYER_G(pid) = s_pid;
+            MODPLAYER_G(pid) = s_pid;
 
             while (Player_Active()) {
                 usleep(10000);
@@ -166,7 +166,7 @@ int stream_audio(FILE *fptr, int maxchan, int curious)
         fclose(fptr);
         MikMod_Exit();
     } else if (m_pid < 0) {
-        zend_error(E_ERROR, "Failed to fork CLI Audio Stream process");
+        zend_error(E_ERROR, "Failed to fork CLI audio stream process");
         return -1;
     }
 
