@@ -16,5 +16,4 @@ if test "$PHP_MOD_PLAYER" != "no"; then
 	PHP_ADD_INCLUDE($MIKMOD_DIR/include)
 
 	PHP_NEW_EXTENSION(mod_player, mod_player.c, $ext_shared,,)
-	PHP_ADD_MAKEFILE_FRAGMENT
 fi
