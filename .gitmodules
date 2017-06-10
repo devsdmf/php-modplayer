@@ -1,0 +1,3 @@
+[submodule "mikmod"]
+	path = mikmod
+	url = git@github.com:devsdmf/mikmod.git
