@@ -114,7 +114,11 @@ PHP_FUNCTION(play_module_file)
 
 PHP_FUNCTION(mod_player_getpid)
 {
-    RETURN_LONG(MODPLAYER_G(pid));
+    if (MODPLAYER_G(pid) > 0) {
+        RETURN_LONG(MODPLAYER_G(pid));
+    } else {
+        RETURN_FALSE;
+    }
 }
 
 PHP_FUNCTION(stop_module_file)
