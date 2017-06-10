@@ -32,9 +32,7 @@ static zend_function_entry modplayer_functions[] = {
 };
 
 zend_module_entry modplayer_module_entry = {
-    #if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
-    #endif
     PHP_MODPLAYER_EXTNAME,
     modplayer_functions,
     PHP_MINIT(modplayer),
@@ -42,9 +40,7 @@ zend_module_entry modplayer_module_entry = {
     NULL,
     NULL,
     NULL,
-    #if ZEND_MODULE_API_NO >= 20010901
     PHP_MODPLAYER_VERSION,
-    #endif
     STANDARD_MODULE_PROPERTIES
 };
 
@@ -83,31 +79,37 @@ PHP_FUNCTION(play_module_file)
 {
     FILE *fptr;
     char *filename;
-    int filename_length, s_pid;
+    size_t filename_length;
+    int s_pid;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) == FAILURE) {
-        RETURN_NULL();
+        zend_error(E_ERROR, "An error occurred at try to parse function parameters");
+        RETURN_FALSE;
     }
 
     if (MODPLAYER_G(pid) > 0) {
         zend_error(E_ERROR, "You've already started the module player");
-        RETURN_NULL();
+        RETURN_FALSE;
     }
 
-    fptr = fopen(filename, "rb");
-    if (fptr == NULL) {
-        perror("Error");
-        zend_error(E_ERROR, "An error occurred at try to open the module audio file specified");
-        RETURN_NULL();
+    if (access(filename, F_OK) != -1) {
+        fptr = fopen(filename, "rb");
+        if (fptr == NULL) {
+            zend_error(E_ERROR, "An error occurred at try to open the module audio file specified");
+            RETURN_FALSE;
+        }
+
+        s_pid = stream_audio(fptr, INI_INT("modplayer.maxchan"), INI_INT("modplayer.curious"));
+
+        if (s_pid > 0) {
+            MODPLAYER_G(pid) = s_pid;
+        }
+
+        RETURN_LONG(s_pid);
+    } else {
+        zend_error(E_ERROR, "The specified module file does not exists");
+        RETURN_FALSE;
     }
-
-    s_pid = stream_audio(fptr, INI_INT("modplayer.maxchan"), INI_INT("modplayer.curious"));
-
-    if (s_pid > 0) {
-        MODPLAYER_G(pid) = s_pid;
-    }
-
-    RETURN_LONG(s_pid);
 }
 
 PHP_FUNCTION(mod_player_getpid)
