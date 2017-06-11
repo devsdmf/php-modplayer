@@ -19,7 +19,6 @@
 #include <sys/wait.h>
 
 #include "php.h"
-#include "php_ini.h"
 #include "php_modplayer.h"
 #include "mikmod.h"
 
@@ -49,11 +48,6 @@ zend_module_entry modplayer_module_entry = {
 ZEND_GET_MODULE(modplayer)
 #endif
 
-PHP_INI_BEGIN()
-PHP_INI_ENTRY("modplayer.maxchan","64",PHP_INI_ALL,NULL)
-PHP_INI_ENTRY("modplayer.curious","0",PHP_INI_ALL,NULL)
-PHP_INI_END()
-
 static void php_modplayer_init_globals(zend_modplayer_globals *modplayer_globals)
 {
     modplayer_globals->pid = 0;
@@ -62,7 +56,6 @@ static void php_modplayer_init_globals(zend_modplayer_globals *modplayer_globals
 PHP_MINIT_FUNCTION(modplayer)
 {
     ZEND_INIT_MODULE_GLOBALS(modplayer, php_modplayer_init_globals, NULL);
-    REGISTER_INI_ENTRIES();
     return SUCCESS;
 }
 
@@ -71,8 +64,7 @@ PHP_MSHUTDOWN_FUNCTION(modplayer)
     if (MODPLAYER_G(pid) > 0) {
         kill(MODPLAYER_G(pid), SIGKILL);
     }
-    
-    UNREGISTER_INI_ENTRIES();
+
     return SUCCESS;
 }
 
@@ -81,19 +73,21 @@ PHP_FUNCTION(play_module_file)
     FILE *fptr;
     char *filename, resolved_path[MAXPATHLEN + 1];
     size_t filename_length;
+    zend_long max_channels = 64;
+    zend_long curious = 0;
     int s_pid;
 
-    // checking if already playing
     if (MODPLAYER_G(pid) > 0) {
         zend_error(E_ERROR, "You've already started the module player");
         RETURN_FALSE;
     }
 
-    // parsing function params
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) == FAILURE) {
-        zend_error(E_ERROR, "An error occurred at try to parse function parameters");
-        RETURN_FALSE;
-    }
+    ZEND_PARSE_PARAMETERS_START(1, 3)
+        Z_PARAM_PATH(filename, filename_length)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_LONG(max_channels)
+        Z_PARAM_LONG(curious)
+    ZEND_PARSE_PARAMETERS_END();
 
     if (strlen(filename) == 0) {
         zend_error(E_ERROR, "You must specify a valid file name");
@@ -112,7 +106,7 @@ PHP_FUNCTION(play_module_file)
             RETURN_FALSE;
         }
 
-        s_pid = stream_audio(fptr, INI_INT("modplayer.maxchan"), INI_INT("modplayer.curious"));
+        s_pid = stream_audio(fptr, max_channels, curious);
 
         if (s_pid > 0) {
             MODPLAYER_G(pid) = s_pid;
