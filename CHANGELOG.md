@@ -12,6 +12,7 @@
 1.1.0
 -----
 
+- Changed the extension name from *cli_audio_stream* to *modplayer*
 - Bug fixes
 - Standard fixes
 
