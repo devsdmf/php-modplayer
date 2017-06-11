@@ -6,6 +6,8 @@ The intent of this extension is to enabled the support to play [tracker music](h
 
 The extension supports all tracker related extensios, like .MOD, .XM, .IT, .S3M and etc. For more format support information, check the [libmikmod](http://mikmod.sourceforge.net/) documentation.
 
+Here is a [video](https://www.youtube.com/watch?v=rSjuUIpTbYk) demonstrating the usage of the extension.
+
 > I made this extension just for fun and research and I couldn't support it in full-time, so, if you find any bug or need to make a contribution, feel free to send me a PR.
 
 # Requirements
