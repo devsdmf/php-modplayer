@@ -114,7 +114,7 @@ PHP_FUNCTION(play_module_file)
             MODPLAYER_G(pid) = s_pid;
         }
 
-        fclose(fptr);
+        // fclose(fptr);
 
         RETURN_LONG(s_pid);
     } else {
@@ -187,11 +187,11 @@ int stream_audio(FILE *fptr, int maxchan, int curious, int reverb)
                 MikMod_Update();
             }
         } else {
+            fclose(fptr);
             php_error_docref(NULL, E_ERROR, "Could not load module");
             return -1;
         }
 
-        fclose(fptr);
         MikMod_Exit();
     } else if (m_pid < 0) {
         php_error_docref(NULL, E_ERROR, "Failed to fork CLI audio stream process");
