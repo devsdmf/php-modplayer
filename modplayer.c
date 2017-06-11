@@ -78,7 +78,7 @@ PHP_FUNCTION(play_module_file)
     int s_pid;
 
     if (MODPLAYER_G(pid) > 0) {
-        zend_error(E_ERROR, "You've already started the module player");
+        php_error_docref(NULL, E_ERROR, "You've already started the module player");
         RETURN_FALSE;
     }
 
@@ -90,19 +90,19 @@ PHP_FUNCTION(play_module_file)
     ZEND_PARSE_PARAMETERS_END();
 
     if (strlen(filename) == 0) {
-        zend_error(E_ERROR, "You must specify a valid file name");
+        php_error_docref(NULL, E_ERROR, "You must specify a valid file name");
         RETURN_FALSE;
     }
 
     if (!expand_filepath(filename, resolved_path)) {
-        zend_error(E_ERROR, "Could not resolve absolute file path");
+        php_error_docref(NULL, E_ERROR, "Could not resolve absolute file path");
         RETURN_FALSE;
     }
 
     if (access(resolved_path, F_OK) != -1) {
         fptr = fopen(resolved_path, "rb");
         if (fptr == NULL) {
-            zend_error(E_ERROR, "An error occurred at try to open the module audio file specified");
+            php_error_docref(NULL, E_ERROR, "An error occurred at try to open the module audio file specified");
             RETURN_FALSE;
         }
 
@@ -112,9 +112,11 @@ PHP_FUNCTION(play_module_file)
             MODPLAYER_G(pid) = s_pid;
         }
 
+        fclose(fptr);
+
         RETURN_LONG(s_pid);
     } else {
-        zend_error(E_ERROR, "The specified module file does not exists");
+        php_error_docref(NULL, E_ERROR, "The specified module file does not exists");
         RETURN_FALSE;
     }
 }
@@ -141,7 +143,7 @@ PHP_FUNCTION(stop_module_file)
         RETURN_TRUE;
     }
 
-    zend_error(E_WARNING, "The player module was not started yet.");
+    php_error_docref(NULL, E_WARNING, "The player module was not started yet.");
     RETURN_FALSE;
 }
 
@@ -160,7 +162,7 @@ int stream_audio(FILE *fptr, int maxchan, int curious)
 
         md_mode |= DMODE_SOFT_MUSIC | DMODE_NOISEREDUCTION | DMODE_INTERP;
         if (MikMod_Init("")) {
-            zend_error(E_ERROR, "Could not initialize the MikMod library");
+            php_error_docref(NULL, E_ERROR, "Could not initialize the MikMod library");
             return -1;
         }
 
@@ -179,14 +181,14 @@ int stream_audio(FILE *fptr, int maxchan, int curious)
                 MikMod_Update();
             }
         } else {
-            zend_error(E_ERROR, "Could not load module");
+            php_error_docref(NULL, E_ERROR, "Could not load module");
             return -1;
         }
 
         fclose(fptr);
         MikMod_Exit();
     } else if (m_pid < 0) {
-        zend_error(E_ERROR, "Failed to fork CLI audio stream process");
+        php_error_docref(NULL, E_ERROR, "Failed to fork CLI audio stream process");
         return -1;
     }
 
