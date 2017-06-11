@@ -79,8 +79,7 @@ PHP_MSHUTDOWN_FUNCTION(modplayer)
 PHP_FUNCTION(play_module_file)
 {
     FILE *fptr;
-    char resolve_path[MAXPATHLEN + 1];
-    char *filename;
+    char *filename, resolved_path[MAXPATHLEN + 1];
     size_t filename_length;
     int s_pid;
 
@@ -101,13 +100,13 @@ PHP_FUNCTION(play_module_file)
         RETURN_FALSE;
     }
 
-    if (!expand_filepath(filename, resolve_path)) {
+    if (!expand_filepath(filename, resolved_path)) {
         zend_error(E_ERROR, "Could not resolve absolute file path");
         RETURN_FALSE;
     }
 
-    if (access(resolve_path, F_OK) != -1) {
-        fptr = fopen(resolve_path, "rb");
+    if (access(resolved_path, F_OK) != -1) {
+        fptr = fopen(resolved_path, "rb");
         if (fptr == NULL) {
             zend_error(E_ERROR, "An error occurred at try to open the module audio file specified");
             RETURN_FALSE;
