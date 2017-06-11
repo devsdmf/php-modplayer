@@ -8,36 +8,36 @@
  *
  */
 #ifndef PHP_MODPLAYER_H
-    #define PHP_MODPLAYER_H 1
+#define PHP_MODPLAYER_H
 
-    #ifdef ZTS
-        #include "TSRM.h"
-    #endif
+extern zend_module_entry modplayer_module_entry;
 
-    ZEND_BEGIN_MODULE_GLOBALS(modplayer)
-    long pid;
-    ZEND_END_MODULE_GLOBALS(modplayer)
+#define phpext_mod_player_ptr &modplayer_module_entry;
 
-    #ifdef ZTS
-        #define MODPLAYER_G(v) TSRM(modplayer_globals_id, zend_modplayer_globals *, v)
-    #else
-        #define MODPLAYER_G(v) (modplayer_globals.v)
-    #endif
+#ifdef ZTS
+#include "TSRM.h"
+#endif
 
-    #define PHP_MODPLAYER_EXTNAME "modplayer"
-    #define PHP_MODPLAYER_VERSION "1.1.0"
+#define PHP_MODPLAYER_EXTNAME "modplayer"
+#define PHP_MODPLAYER_VERSION "1.1.0"
 
-    PHP_MINIT_FUNCTION(modplayer);
-    PHP_MSHUTDOWN_FUNCTION(modplayer);
+ZEND_BEGIN_MODULE_GLOBALS(modplayer)
+long pid;
+ZEND_END_MODULE_GLOBALS(modplayer)
 
-    PHP_FUNCTION(play_module_file);
-    PHP_FUNCTION(mod_player_getpid);
-    PHP_FUNCTION(stop_module_file);
+#ifdef ZTS
+#define MODPLAYER_G(v) TSRM(modplayer_globals_id, zend_modplayer_globals *, v)
+#else
+#define MODPLAYER_G(v) (modplayer_globals.v)
+#endif
 
-    int stream_audio(FILE *fptr, int maxchan, int curious, int reverb);
+PHP_MINIT_FUNCTION(modplayer);
+PHP_MSHUTDOWN_FUNCTION(modplayer);
 
-    extern zend_module_entry modplayer_module_entry;
-    
-    #define phpext_mod_player_ptr &modplayer_module_entry;
+PHP_FUNCTION(play_module_file);
+PHP_FUNCTION(mod_player_getpid);
+PHP_FUNCTION(stop_module_file);
+
+int stream_audio(FILE *fptr, int maxchan, int curious, int reverb);
 
 #endif
