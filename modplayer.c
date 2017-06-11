@@ -75,6 +75,7 @@ PHP_FUNCTION(play_module_file)
     size_t filename_length;
     zend_long max_channels = 64;
     zend_long curious = 0;
+    zend_long reverb = 1;
     int s_pid;
 
     if (MODPLAYER_G(pid) > 0) {
@@ -82,11 +83,12 @@ PHP_FUNCTION(play_module_file)
         RETURN_FALSE;
     }
 
-    ZEND_PARSE_PARAMETERS_START(1, 3)
+    ZEND_PARSE_PARAMETERS_START(1, 4)
         Z_PARAM_PATH(filename, filename_length)
         Z_PARAM_OPTIONAL
         Z_PARAM_LONG(max_channels)
         Z_PARAM_LONG(curious)
+        Z_PARAM_LONG(reverb)
     ZEND_PARSE_PARAMETERS_END();
 
     if (strlen(filename) == 0) {
@@ -106,7 +108,7 @@ PHP_FUNCTION(play_module_file)
             RETURN_FALSE;
         }
 
-        s_pid = stream_audio(fptr, max_channels, curious);
+        s_pid = stream_audio(fptr, max_channels, curious, reverb);
 
         if (s_pid > 0) {
             MODPLAYER_G(pid) = s_pid;
@@ -147,7 +149,7 @@ PHP_FUNCTION(stop_module_file)
     RETURN_FALSE;
 }
 
-int stream_audio(FILE *fptr, int maxchan, int curious)
+int stream_audio(FILE *fptr, int maxchan, int curious, int reverb)
 {
     pid_t m_pid;
     signed int s_pid;
@@ -161,6 +163,10 @@ int stream_audio(FILE *fptr, int maxchan, int curious)
         MikMod_RegisterAllLoaders();
 
         md_mode |= DMODE_SOFT_MUSIC | DMODE_NOISEREDUCTION | DMODE_INTERP;
+        
+        if (reverb > 0) {
+            md_reverb = reverb;
+        }
         if (MikMod_Init("")) {
             php_error_docref(NULL, E_ERROR, "Could not initialize the MikMod library");
             return -1;

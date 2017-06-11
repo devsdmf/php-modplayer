@@ -34,7 +34,7 @@
     PHP_FUNCTION(mod_player_getpid);
     PHP_FUNCTION(stop_module_file);
 
-    int stream_audio(FILE *fptr, int maxchan, int curious);
+    int stream_audio(FILE *fptr, int maxchan, int curious, int reverb);
 
     extern zend_module_entry modplayer_module_entry;
     
