@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -78,22 +79,35 @@ PHP_MSHUTDOWN_FUNCTION(modplayer)
 PHP_FUNCTION(play_module_file)
 {
     FILE *fptr;
+    char resolve_path[MAXPATHLEN + 1];
     char *filename;
     size_t filename_length;
     int s_pid;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) == FAILURE) {
-        zend_error(E_ERROR, "An error occurred at try to parse function parameters");
-        RETURN_FALSE;
-    }
-
+    // checking if already playing
     if (MODPLAYER_G(pid) > 0) {
         zend_error(E_ERROR, "You've already started the module player");
         RETURN_FALSE;
     }
 
-    if (access(filename, F_OK) != -1) {
-        fptr = fopen(filename, "rb");
+    // parsing function params
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &filename, &filename_length) == FAILURE) {
+        zend_error(E_ERROR, "An error occurred at try to parse function parameters");
+        RETURN_FALSE;
+    }
+
+    if (strlen(filename) == 0) {
+        zend_error(E_ERROR, "You must specify a valid file name");
+        RETURN_FALSE;
+    }
+
+    if (!expand_filepath(filename, resolve_path)) {
+        zend_error(E_ERROR, "Could not resolve absolute file path");
+        RETURN_FALSE;
+    }
+
+    if (access(resolve_path, F_OK) != -1) {
+        fptr = fopen(resolve_path, "rb");
         if (fptr == NULL) {
             zend_error(E_ERROR, "An error occurred at try to open the module audio file specified");
             RETURN_FALSE;
