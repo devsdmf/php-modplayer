@@ -123,12 +123,19 @@ PHP_FUNCTION(mod_player_getpid)
 
 PHP_FUNCTION(stop_module_file)
 {
-    if (MODPLAYER_G(pid) > 0) {
-        kill(MODPLAYER_G(pid), SIGKILL);
+    pid_t m_pid;
+
+    m_pid = MODPLAYER_G(pid);
+
+    if (m_pid > 0) {
+        kill(m_pid, SIGKILL);
         MODPLAYER_G(pid) = 0;
+
+        RETURN_TRUE;
     }
 
-    RETURN_NULL();
+    zend_error(E_WARNING, "The player module was not started yet.");
+    RETURN_FALSE;
 }
 
 int stream_audio(FILE *fptr, int maxchan, int curious)
