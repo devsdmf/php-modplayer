@@ -70,19 +70,22 @@ And it's done!
 
 The extension itself, has only three functions, all of them is described below:
 
-### play_module_file
+### modplayer_play
 
 (PHP 5 >= 5.5, PHP 7)
-play_module_file - Play a module file from the disk
+modplayer_play - Play a module file from the disk
 
 #### Description
-`int play_module_file( string $filename )`
+`int modplayer_play( string $filename [, int max_channels [, bool curious [, int reverb ]]] )`
 
 Start the module player and play the $filename file in background.
 
 #### Parameters
 
 - *$filename* - The module audio file in the folder, or with the absolute path.
+- *$max_channels* - The tracker channels to be used (default: 64).
+- *$curious* - Sets the mixer to search and mix the audio on the fly (default: false).
+- *$reverb* - Sets the reverb level from 0 to 15 (default: 1).
 
 #### Return Values
 
@@ -93,20 +96,20 @@ The function returns the PID of the player sub-process or FALSE if an error occu
 Playing a sample module file:
 
 ```php
-if (!mod_player_getpid()) {
-    $pid = play_module_file('sample.mod');
+if (!modplayer_getpid()) {
+    $pid = modplayer_play('sample.mod');
 } else {
     echo 'Module already playing.';
 }
 ```
 
-### mod_player_getpid
+### modplayer_getpid
 
 (PHP 5>= 5.5, PHP 7)
-mod_player_getpid - Get the PID of the player subprocess
+modplayer_getpid - Get the PID of the player subprocess
 
 #### Description
-`int mod_player_getpid( )`
+`int modplayer_getpid( )`
 
 Get the PID of the player subprocess.
 
@@ -123,16 +126,16 @@ The function returns the PID of the player sub-process or FALSE if none is playi
 Getting the PID of the player sub-process:
 
 ```php
-$pid = mod_player_getpid();
+$pid = modplayer_getpid();
 ```
 
-### stop_module_file
+### modplayer_stop
 
 (PHP 5>= 5.5, PHP 7)
-stop_module_file - Stop a currently playing song.
+modplayer_stop - Stop a currently playing song.
 
 #### Description
-`bool stop_module_file( )`
+`bool modplayer_stop( )`
 
 Stop a currently playing song.
 
@@ -149,8 +152,8 @@ Returns **TRUE** if the process was stopped otherwise **FALSE** if an error occu
 Stopping the player
 
 ```php
-if (mod_player_getpid()) {
-    if (stop_module_file()) {
+if (modplayer_getpid()) {
+    if (modplayer_stop()) {
         echo "Success!";
     } else {
         echo "An error occured!";
