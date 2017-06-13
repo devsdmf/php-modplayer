@@ -34,10 +34,10 @@ ZEND_END_MODULE_GLOBALS(modplayer)
 PHP_MINIT_FUNCTION(modplayer);
 PHP_MSHUTDOWN_FUNCTION(modplayer);
 
-PHP_FUNCTION(play_module_file);
+PHP_FUNCTION(modplayer_play);
 PHP_FUNCTION(modplayer_getpid);
-PHP_FUNCTION(stop_module_file);
+PHP_FUNCTION(modplayer_stop);
 
-int stream_audio(FILE *fptr, int maxchan, int curious, int reverb);
+int play_audio(FILE *fptr, int maxchan, int curious, int reverb);
 
 #endif
