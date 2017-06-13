@@ -26,7 +26,7 @@ ZEND_DECLARE_MODULE_GLOBALS(modplayer)
 
 static zend_function_entry modplayer_functions[] = {
     PHP_FE(play_module_file, NULL)
-    PHP_FE(mod_player_getpid, NULL)
+    PHP_FE(modplayer_getpid, NULL)
     PHP_FE(stop_module_file, NULL)
     {NULL, NULL, NULL}
 };
@@ -68,6 +68,8 @@ PHP_MSHUTDOWN_FUNCTION(modplayer)
     return SUCCESS;
 }
 
+/* {{{ proto int play_module_file(string file [, int max_channels [, int curious [, int reverb]]])
+   Play a module file from the disk and returns the PID of the player sub-process */
 PHP_FUNCTION(play_module_file)
 {
     FILE *fptr;
@@ -122,8 +124,11 @@ PHP_FUNCTION(play_module_file)
         RETURN_FALSE;
     }
 }
+/* }}} */
 
-PHP_FUNCTION(mod_player_getpid)
+/* {{{ proto int modplayer_getpid()
+   Get the PID of the player sub-process, if the player is not running returns FALSE. */
+PHP_FUNCTION(modplayer_getpid)
 {
     if (MODPLAYER_G(pid) > 0) {
         RETURN_LONG(MODPLAYER_G(pid));
@@ -131,7 +136,10 @@ PHP_FUNCTION(mod_player_getpid)
         RETURN_FALSE;
     }
 }
+/* }}} */
 
+/* {{{ proto bool stop_module_file()
+   Stop the module player.*/
 PHP_FUNCTION(stop_module_file)
 {
     pid_t m_pid;
@@ -148,6 +156,7 @@ PHP_FUNCTION(stop_module_file)
     php_error_docref(NULL, E_WARNING, "The player module was not started yet.");
     RETURN_FALSE;
 }
+/* }}} */
 
 int stream_audio(FILE *fptr, int maxchan, int curious, int reverb)
 {

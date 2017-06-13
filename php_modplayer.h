@@ -35,7 +35,7 @@ PHP_MINIT_FUNCTION(modplayer);
 PHP_MSHUTDOWN_FUNCTION(modplayer);
 
 PHP_FUNCTION(play_module_file);
-PHP_FUNCTION(mod_player_getpid);
+PHP_FUNCTION(modplayer_getpid);
 PHP_FUNCTION(stop_module_file);
 
 int stream_audio(FILE *fptr, int maxchan, int curious, int reverb);
