@@ -68,7 +68,7 @@ PHP_MSHUTDOWN_FUNCTION(modplayer)
     return SUCCESS;
 }
 
-/* {{{ proto int play_module_file(string file [, int max_channels [, int curious [, int reverb]]])
+/* {{{ proto int play_module_file(string file [, int max_channels [, bool curious [, int reverb]]])
    Play a module file from the disk and returns the PID of the player sub-process */
 PHP_FUNCTION(play_module_file)
 {
@@ -76,7 +76,7 @@ PHP_FUNCTION(play_module_file)
     char *filename, resolved_path[MAXPATHLEN + 1];
     size_t filename_length;
     zend_long max_channels = 64;
-    zend_long curious = 0;
+    zend_bool curious = 0;
     zend_long reverb = 1;
     int s_pid;
 
@@ -89,7 +89,7 @@ PHP_FUNCTION(play_module_file)
         Z_PARAM_PATH(filename, filename_length)
         Z_PARAM_OPTIONAL
         Z_PARAM_LONG(max_channels)
-        Z_PARAM_LONG(curious)
+        Z_PARAM_BOOL(curious)
         Z_PARAM_LONG(reverb)
     ZEND_PARSE_PARAMETERS_END();
 
