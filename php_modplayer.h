@@ -19,7 +19,7 @@ extern zend_module_entry modplayer_module_entry;
 #endif
 
 #define PHP_MODPLAYER_EXTNAME "modplayer"
-#define PHP_MODPLAYER_VERSION "2.0.0"
+#define PHP_MODPLAYER_VERSION "1.0.0"
 
 ZEND_BEGIN_MODULE_GLOBALS(modplayer)
 long pid;
