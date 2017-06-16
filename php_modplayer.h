@@ -38,6 +38,4 @@ PHP_FUNCTION(modplayer_play);
 PHP_FUNCTION(modplayer_getpid);
 PHP_FUNCTION(modplayer_stop);
 
-int play_audio(FILE *fptr, int maxchan, int curious, int reverb);
-
 #endif

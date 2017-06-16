@@ -67,6 +67,58 @@ PHP_MSHUTDOWN_FUNCTION(modplayer)
     return SUCCESS;
 }
 
+static int play_audio(FILE *fptr, int maxchan, int curious, int reverb)
+{
+    pid_t m_pid;
+    signed int s_pid;
+
+    m_pid = fork();
+    if (m_pid == 0) {
+        MODULE *module;
+
+        MikMod_InitThreads();
+        MikMod_RegisterAllDrivers();
+        MikMod_RegisterAllLoaders();
+
+        md_mode |= DMODE_SOFT_MUSIC | DMODE_NOISEREDUCTION | DMODE_INTERP;
+        
+        if (reverb > 0) {
+            md_reverb = reverb;
+        }
+        if (MikMod_Init("")) {
+            php_error_docref(NULL, E_ERROR, "Could not initialize the MikMod library");
+            return -1;
+        }
+
+        module = Player_LoadFP(fptr, maxchan, curious);
+        if (module) {
+            module->wrap = 1;
+            module->loop = 0;
+
+            Player_Start(module);
+
+            s_pid = getpid();
+            MODPLAYER_G(pid) = s_pid;
+
+            while (Player_Active()) {
+                usleep(10000);
+                MikMod_Update();
+            }
+        } else {
+            fclose(fptr);
+            php_error_docref(NULL, E_ERROR, "Could not load module");
+            return -1;
+        }
+
+        MikMod_Exit();
+    } else if (m_pid < 0) {
+        php_error_docref(NULL, E_ERROR, "Failed to fork CLI audio stream process");
+        return -1;
+    }
+
+    return m_pid;
+}
+
 /* {{{ proto int modplayer_play(string file [, int reverb [, int max_channels [, bool curious]]])
    Play a module file from the disk and returns the PID of the player sub-process */
 PHP_FUNCTION(modplayer_play)
@@ -149,55 +201,3 @@ PHP_FUNCTION(modplayer_stop)
     RETURN_FALSE;
 }
 /* }}} */
-
-int play_audio(FILE *fptr, int maxchan, int curious, int reverb)
-{
-    pid_t m_pid;
-    signed int s_pid;
-
-    m_pid = fork();
-    if (m_pid == 0) {
-        MODULE *module;
-
-        MikMod_InitThreads();
-        MikMod_RegisterAllDrivers();
-        MikMod_RegisterAllLoaders();
-
-        md_mode |= DMODE_SOFT_MUSIC | DMODE_NOISEREDUCTION | DMODE_INTERP;
-        
-        if (reverb > 0) {
-            md_reverb = reverb;
-        }
-        if (MikMod_Init("")) {
-            php_error_docref(NULL, E_ERROR, "Could not initialize the MikMod library");
-            return -1;
-        }
-
-        module = Player_LoadFP(fptr, maxchan, curious);
-        if (module) {
-            module->wrap = 1;
-            module->loop = 0;
-
-            Player_Start(module);
-
-            s_pid = getpid();
-            MODPLAYER_G(pid) = s_pid;
-
-            while (Player_Active()) {
-                usleep(10000);
-                MikMod_Update();
-            }
-        } else {
-            fclose(fptr);
-            php_error_docref(NULL, E_ERROR, "Could not load module");
-            return -1;
-        }
-
-        MikMod_Exit();
-    } else if (m_pid < 0) {
-        php_error_docref(NULL, E_ERROR, "Failed to fork CLI audio stream process");
-        return -1;
-    }
-
-    return m_pid;
-}
