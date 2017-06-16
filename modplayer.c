@@ -11,7 +11,6 @@
 #include "config.h"
 #endif
 
-#include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -103,24 +102,19 @@ PHP_FUNCTION(modplayer_play)
         RETURN_FALSE;
     }
 
-    if (access(resolved_path, F_OK) != -1) {
-        fptr = fopen(resolved_path, "rb");
-        if (fptr == NULL) {
-            php_error_docref(NULL, E_ERROR, "An error occurred at try to open the module audio file specified");
-            RETURN_FALSE;
-        }
-
-        s_pid = play_audio(fptr, max_channels, curious, reverb);
-
-        if (s_pid > 0) {
-            MODPLAYER_G(pid) = s_pid;
-        }
-
-        RETURN_LONG(s_pid);
-    } else {
-        php_error_docref(NULL, E_ERROR, "The specified module file does not exists");
+    fptr = fopen(resolved_path, "rb");
+    if (fptr == NULL) {
+        php_error_docref(NULL, E_ERROR, "Failed to open stream");
         RETURN_FALSE;
     }
+
+    s_pid = play_audio(fptr, max_channels, curious, reverb);
+
+    if (s_pid > 0) {
+        MODPLAYER_G(pid) = s_pid;
+    }
+
+    RETURN_LONG(s_pid);
 }
 /* }}} */
 
