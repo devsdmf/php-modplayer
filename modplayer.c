@@ -191,7 +191,7 @@ PHP_FUNCTION(modplayer_stop)
     m_pid = MODPLAYER_G(pid);
 
     if (m_pid > 0) {
-        kill(m_pid, SIGKILL);
+        kill(m_pid, SIGTERM);
         MODPLAYER_G(pid) = 0;
 
         RETURN_TRUE;
